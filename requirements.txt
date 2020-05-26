@@ -1,0 +1,3 @@
+mock==2.0.0
+setuptools==40.8.0
+forbiddenfruit==0.1.3
