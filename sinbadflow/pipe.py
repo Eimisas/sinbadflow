@@ -61,4 +61,4 @@ class Pipe():
     wrapped_pipe = self.__get_head_pipe(self.__wrap_pipe(elem))
     self.next_pipe = wrapped_pipe
     wrapped_pipe.prev_pipe = self
-    return wrapped_pipe  
+    return wrapped_pipe 
