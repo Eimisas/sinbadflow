@@ -1,6 +1,6 @@
 import unittest
 from sinbadflow.pipe import Pipe
-from sinbadflow.status_handler import Status
+from sinbadflow.utils import Status
 
 class PipeTest(unittest.TestCase):
 

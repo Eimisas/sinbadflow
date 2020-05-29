@@ -1,5 +1,5 @@
 import unittest
-from sinbadflow.logger import Logger, LogLevel
+from sinbadflow.utils import Logger, LogLevel
 from unittest.mock import patch, call
 import logging
 import io
