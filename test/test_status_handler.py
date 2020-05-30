@@ -1,6 +1,5 @@
 import unittest
 from sinbadflow.executor import Sinbadflow
-from sinbadflow.pipe import Pipe
 from sinbadflow.utils import StatusHandler, Status, Trigger
 
 

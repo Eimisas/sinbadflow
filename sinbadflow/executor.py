@@ -8,19 +8,19 @@ RunResults = namedtuple('RunResults', ['status', 'path'])
 
 class Sinbadflow():
     '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines with databricks notebooks
-    and specific triggers in parallel or single mode. The main component of Sinbadflow - Pipe() object from which pipelines are build.
+    and specific triggers in parallel or single mode. The main component of Sinbadflow - BaseAgent() object from which pipelines are build.
 
     Initialize options:
     logging_option = print - selects prefered option of logging (print/logging supported)
 
     Methods:
-    run(pipeline: Pipe, timeout=1800) - runs the input pipeline with specific dbutils.notebook.run timeout parameter
-    get_head_from_pipeline(pipeline: Pipe) -> Pipe(), returns the head pipe form the pipeline
-    print_pipeline(pipeline: Pipe) - prints the full pipeline
+    run(pipeline: BaseAgent) - runs the input pipeline
+    get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent(), returns the head element form the pipeline
+    print_pipeline(pipeline: BaseAgent) - prints the full pipeline
 
     Usage example:
-    pipe_x = Pipe('/path/to/notebook', Trigger.OK_PREV)
-    pipe_y = Pipe('/path/to/notebook', Trigger.FAIL_PREV)
+    pipe_x = DatabricksNotebook('/path/to/notebook', Trigger.OK_PREV)
+    pipe_y = DatabricksNotebook('/path/to/notebook', Trigger.FAIL_PREV)
 
     pipeline = pipe_x >> pipe_y
     sf = Sinbadflow()
@@ -32,19 +32,17 @@ class Sinbadflow():
         self.logger = Logger(logging_option)
         self.head = None
 
-    def run(self, pipeline, timeout=1800):
-        '''Runs the input pipeline with specific timeout (dbutils.notebook.run parameter)
+    def run(self, pipeline):
+        '''Runs the input pipeline
         Inputs:
-        pipeline : Pipe object
-        timeout: int, default = 1800
+        pipeline : BaseAgent object
 
         Example usage:
         pipeline = pipe1 >> pipe2
-        sinbadflow_instance.run(pipeline, 1000)
+        sinbadflow_instance.run(pipeline)
         '''
         self.head = self.get_head_from_pipeline(pipeline)
         self.logger.log('Pipeline run started')
-        self.timeout = timeout
         self.__traverse_pipeline(self.__run_notebooks)
         self.logger.log(f'\nPipeline run finished')
         self.status_handler.print_results(self.logger)
@@ -52,22 +50,22 @@ class Sinbadflow():
     def get_head_from_pipeline(self, pipeline):
         '''Returns head pipe from the pipeline
         Inputs:
-        pipeline: Pipe object
+        pipeline: BaseAgent object
 
         Returns:
-        Pipe (head pipe)
+        BaseAgent (head element)
         '''
-        self.__traverse_pipeline(self.__set_head_pipe, pipeline, False)
+        self.__traverse_pipeline(self.__set_head_element, pipeline, False)
         return self.head
 
     def __traverse_pipeline(self, func, pipeline=None, forward=True):
         pointer = self.head if forward else pipeline
         while pointer is not None:
             func(pointer)
-            pointer = pointer.next_pipe if forward else pointer.prev_pipe
+            pointer = pointer.next_elem if forward else pointer.prev_elem
 
-    def __set_head_pipe(self, pipe):
-        if pipe.prev_pipe == None:
+    def __set_head_element(self, pipe):
+        if pipe.prev_elem == None:
             self.head = pipe
 
     def __run_notebooks(self, elem):
@@ -77,10 +75,10 @@ class Sinbadflow():
 
     def __get_notebooks_to_execute(self, elem):
         triggered_notebooks = []
-        for pipe in elem.data:
-            if pipe.data == None:
+        for elm in elem.data:
+            if elm.data == None:
                 continue
-            triggered_notebooks.append(pipe)
+            triggered_notebooks.append(elm)
         return triggered_notebooks
 
     def __execute_elements(self, element_list):
@@ -99,8 +97,7 @@ class Sinbadflow():
             result_status = Status.SKIPPED
         else:
             try:
-                ##TODO should execute - self.run()
-                dbutils.notebook.run(element.data, self.timeout)
+                element.run()
                 result_status = Status.OK
             except Exception as e:
                 result_status = Status.FAIL
@@ -108,13 +105,13 @@ class Sinbadflow():
 
     def __log_and_return_result(self, status, element):
         if status == Status.SKIPPED:
-            self.logger.log(f'     SKIPPED: Trigger rule failed for notebook {element.data}: Pipe trigger rule -> {element.trigger.name}' +
+            self.logger.log(f'     SKIPPED: Trigger rule failed for element {element.data}: Element trigger rule -> {element.trigger.name}' +
                             f' and previous run status -> {self.status_handler.last_status.name}', LogLevel.WARNING)
             return status
         else:
             level = LogLevel.CRITICAL if status == Status.FAIL else LogLevel.INFO
             self.logger.log(
-                f'     Notebook {element.data} run status: {status.name.replace("_PREV","")}', level)
+                f'     Element {element.data} run status: {status.name.replace("_PREV","")}', level)
             return status
 
     def print_pipeline(self, pipeline):

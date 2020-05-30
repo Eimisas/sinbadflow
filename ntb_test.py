@@ -30,96 +30,96 @@ class SinbadflowTester(unittest.TestCase):
     self.sh = StatusHandler()
     
   def test_should_run_simple_pipeline(self):
-    pipeline = Pipe('ok1') >> Pipe('ok2')
+    pipeline = BaseAgent('ok1') >> BaseAgent('ok2')
     self.sf.run(pipeline, 1)
     output = {'ok1':1, 'ok2':1}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_run_parallel_pipeline(self):
-    pipeline = Pipe('ok1') >> [Pipe('ok2'), Pipe('ok3')]
+    pipeline = BaseAgent('ok1') >> [BaseAgent('ok2'), BaseAgent('ok3')]
     self.sf.run(pipeline, 2)
     output = {'ok1':2, 'ok2':2, 'ok3': 2}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_get_head_from_pipeline(self):
-    root = Pipe([Pipe('ok1')])
-    pipeline = root >> Pipe('ok2')
+    root = BaseAgent([BaseAgent('ok1')])
+    pipeline = root >> BaseAgent('ok2')
     self.sf.run(pipeline, 3)
     self.assertTrue(self.sf.get_head_from_pipeline(pipeline) == root , f"Should get {root}, got: {self.sf.get_head_from_pipeline(pipeline)}")
     
   def test_should_connect_two_pipelines(self):
-    pipe1 = Pipe('ok1') >> Pipe('ok2')
-    pipe2 = [Pipe('ok3'), Pipe('ok4')] >> Pipe('ok5')
+    pipe1 = BaseAgent('ok1') >> BaseAgent('ok2')
+    pipe2 = [BaseAgent('ok3'), BaseAgent('ok4')] >> BaseAgent('ok5')
     summed = pipe1 >> pipe2
     self.sf.run(summed, 4)
     output = {'ok1':4, 'ok2':4, 'ok3': 4, 'ok4':4, 'ok5':4}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_trigger_fail_all(self):
-    pipeline = Pipe('fail') >> Pipe('ok', Trigger.FAIL_ALL)
+    pipeline = BaseAgent('fail') >> BaseAgent('ok', Trigger.FAIL_ALL)
     self.sf.run(pipeline, 5)
     output = {'ok':5}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_trigger_ok_all(self):
-    pipeline = Pipe('ok1') >> Pipe('ok2', Trigger.OK_ALL)
+    pipeline = BaseAgent('ok1') >> BaseAgent('ok2', Trigger.OK_ALL)
     self.sf.run(pipeline, 6)
     output = {'ok1':6, 'ok2':6}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_trigger_fail_prev(self):
-    pipeline = Pipe('fail') >> Pipe('ok', Trigger.FAIL_PREV)
+    pipeline = BaseAgent('fail') >> BaseAgent('ok', Trigger.FAIL_PREV)
     self.sf.run(pipeline, 7)
     output = {'ok':7}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_trigger_ok_prev(self):
-    pipeline = Pipe('ok1') >> Pipe('ok2', Trigger.OK_PREV)
+    pipeline = BaseAgent('ok1') >> BaseAgent('ok2', Trigger.OK_PREV)
     self.sf.run(pipeline, 8)
     output = {'ok1':8, 'ok2':8}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_trigger_done_prev(self):
-    pipeline = Pipe('fail') >> Pipe('ok2', Trigger.OK_PREV) >> Pipe('ok3')
+    pipeline = BaseAgent('fail') >> BaseAgent('ok2', Trigger.OK_PREV) >> BaseAgent('ok3')
     self.sf.run(pipeline, 9)
     output = {'ok3':9}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")   
   
   def test_should_trigger_works_parallel_notebooks(self):
-    pipeline = Pipe('fail') >> [Pipe('ok1',Trigger.OK_ALL), Pipe('ok2', Trigger.OK_ALL), Pipe('ok3', Trigger.FAIL_PREV)]
+    pipeline = BaseAgent('fail') >> [BaseAgent('ok1',Trigger.OK_ALL), BaseAgent('ok2', Trigger.OK_ALL), BaseAgent('ok3', Trigger.FAIL_PREV)]
     self.sf.run(pipeline, 10)
     output = {'ok3':10}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")
     
   def test_should_trigger_works_at_parallel_notebooks_output(self):
-    pipeline = [Pipe('fail'), Pipe('ok2')] >> Pipe('ok3', Trigger.FAIL_PREV)
+    pipeline = [BaseAgent('fail'), BaseAgent('ok2')] >> BaseAgent('ok3', Trigger.FAIL_PREV)
     self.sf.run(pipeline, 11)
     output = {'ok2':11, 'ok3':11}
     self.assertTrue(self.run_store == output , f"Should get {output}, got: {self.run_store}")   
    
   def test_should_skip_all_after_fail(self):
-    pipeline = Pipe('fail') >> Pipe('ok2', Trigger.OK_PREV) >> Pipe('ok3', Trigger.OK_ALL) >> [Pipe('fail',Trigger.OK_PREV), Pipe('ok2', Trigger.OK_PREV)]
+    pipeline = BaseAgent('fail') >> BaseAgent('ok2', Trigger.OK_PREV) >> BaseAgent('ok3', Trigger.OK_ALL) >> [BaseAgent('fail',Trigger.OK_PREV), BaseAgent('ok2', Trigger.OK_PREV)]
     self.sf.run(pipeline, 12)
     output = {}
     self.assertTrue(self.run_store == output and self.sf.status_handler.STATUS_STORE['SKIPPED'] == 4, f"Should get {output}, got: {self.run_store}") 
     
   def test_should_connect_pipelines_and_run_all(self):
-    pipeline = Pipe('ok1') >> Pipe('ok2') 
-    pipeline2 = Pipe('ok3') >> [Pipe('ok4'), Pipe('ok5')]
+    pipeline = BaseAgent('ok1') >> BaseAgent('ok2') 
+    pipeline2 = BaseAgent('ok3') >> [BaseAgent('ok4'), BaseAgent('ok5')]
     pipeline_sum = pipeline >> pipeline2
     self.sf.run(pipeline_sum, 13)
     output = {'ok1':13, 'ok2':13, 'ok3':13, 'ok4':13, 'ok5':13}
     self.assertTrue(self.run_store == output, f"Should get {output}, got: {self.run_store}")    
     
   def test_should_get_correct_statuses(self):
-    pipeline = Pipe('fail') >> Pipe('ok2', Trigger.OK_PREV) >> Pipe('ok3', Trigger.FAIL_PREV) >> [Pipe('fail',Trigger.OK_PREV), Pipe('ok2', Trigger.OK_PREV)]
+    pipeline = BaseAgent('fail') >> BaseAgent('ok2', Trigger.OK_PREV) >> BaseAgent('ok3', Trigger.FAIL_PREV) >> [BaseAgent('fail',Trigger.OK_PREV), BaseAgent('ok2', Trigger.OK_PREV)]
     self.sf.run(pipeline, 14)
     store = self.sf.status_handler.STATUS_STORE
     self.assertTrue(store['SKIPPED'] == 1 and store['FAIL'] == 2 and store['OK'] == 2,
                     f"Should get [skipped:1, fail_prev: 2, ok_prev: 2], got {store['SKIPPED'], store['FAIL'], store['OK']}")
     
   def test_should_do_nothing(self):
-    pipeline = Pipe() >> Pipe()
+    pipeline = BaseAgent() >> BaseAgent()
     self.sf.run(pipeline, 15)
     self.assertTrue(self.run_store == {}, f"Should get nothing, got: {self.run_store}")
   

@@ -199,13 +199,13 @@ class StatusHandler():
 
 
 def rshift_list(self, elem):
-  return Pipe(self) >> elem
+  return BaseAgent(self) >> elem
 
 
 curse(list, "__rshift__", rshift_list)
 
 
-class Pipe():
+class BaseAgent():
   '''Main component of pipeline which are executed by Sinbadflow. Pipe object follows a linked list implementation
   with __rshift__ override for specific functionality. Each pipe is wrapped to another Pipe object to implement linked list
   functionality both on single Pipe object and on the list of Pipes objects.
@@ -216,10 +216,10 @@ class Pipe():
   
   Usage:
   For pipeline creation use '>>' symbols between pipes
-  pipeline = Pipe() >> Pipe()
+  pipeline = BaseAgent() >> BaseAgent()
   
   For parallel run use list of Pipes followed by '>>' symbol
-  pipeline = [Pipe(),Pipe()] >> Pipe()
+  pipeline = [BaseAgent(),BaseAgent()] >> BaseAgent()
   
   For pipeline concatenation use the same '>>' symbol
   pipeline_x >> pipeline_y
@@ -228,32 +228,32 @@ class Pipe():
   def __init__(self, data=None, trigger=Trigger.DEFAULT):
     self.data = data
     self.trigger = trigger
-    self.next_pipe = None
-    self.prev_pipe = None
+    self.next_elem = None
+    self.prev_elem = None
 
-  def __wrap_pipe(self, elem):
+  def __wrap_BaseAgent(self, elem):
     #pipe >> [pipe] case
     if type(elem) == list:
-      return Pipe(elem)
+      return BaseAgent(elem)
     #[pipe] >> pipe
     elif type(elem.data) == list:
       return elem
     #pipe >> pipe
-    return Pipe([elem])
+    return BaseAgent([elem])
 
-  def __get_head_pipe(self, pipe):
-    while pipe.prev_pipe is not None:
-      pipe = pipe.prev_pipe
+  def __get_head_BaseAgent(self, pipe):
+    while pipe.prev_elem is not None:
+      pipe = pipe.prev_elem
     return pipe
 
   def __rshift__(self, elem):
     #This is the first pipe in pipeline, no one wrapped you (root)
-    if self.prev_pipe == None:
-      self = self.__wrap_pipe(self)
+    if self.prev_elem == None:
+      self = self.__wrap_BaseAgent(self)
     #Wrap the pipe object for single/parallel use, get the head
-    wrapped_pipe = self.__get_head_pipe(self.__wrap_pipe(elem))
-    self.next_pipe = wrapped_pipe
-    wrapped_pipe.prev_pipe = self
+    wrapped_pipe = self.__get_head_BaseAgent(self.__wrap_BaseAgent(elem))
+    self.next_elem = wrapped_pipe
+    wrapped_pipe.prev_elem = self
     return wrapped_pipe
 
 # COMMAND ----------
@@ -267,19 +267,19 @@ class Pipe():
 
 class Sinbadflow():
   '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines with databricks notebooks
-  and specific triggers in parallel or single mode. The main component of Sinbadflow - Pipe() object from which pipelines are build.
+  and specific triggers in parallel or single mode. The main component of Sinbadflow - BaseAgent() object from which pipelines are build.
   
   Initialize options:
   logging_option = print - selects prefered option of logging (print/logging supported)
   
   Methods:
   run(pipeline: Pipe, timeout=1800) - runs the input pipeline with specific dbutils.notebook.run timeout parameter
-  get_head_from_pipeline(pipeline: Pipe) -> Pipe(), returns the head pipe form the pipeline
+  get_head_from_pipeline(pipeline: Pipe) -> BaseAgent(), returns the head pipe form the pipeline
   print_pipeline(pipeline: Pipe) - prints the full pipeline
   
   Usage example:
-  pipe_x = Pipe('/path/to/notebook', Trigger.OK_PREV)
-  pipe_y = Pipe('/path/to/notebook', Trigger.FAIL_PREV)
+  pipe_x = BaseAgent('/path/to/notebook', Trigger.OK_PREV)
+  pipe_y = BaseAgent('/path/to/notebook', Trigger.FAIL_PREV)
   
   pipeline = pipe_x >> pipe_y
   sf = Sinbadflow()
@@ -323,10 +323,10 @@ class Sinbadflow():
     pointer = self.head if forward else pipeline
     while pointer is not None:
       func(pointer)
-      pointer = pointer.next_pipe if forward else pointer.prev_pipe
+      pointer = pointer.next_elem if forward else pointer.prev_elem
 
-  def __set_head_pipe(self, pipe):
-    if pipe.prev_pipe == None:
+  def __set_head_BaseAgent(self, pipe):
+    if pipe.prev_elem == None:
       self.head = pipe
 
   def __run_notebooks(self, elem):
@@ -398,13 +398,13 @@ class Sinbadflow():
 # COMMAND ----------
 
 # sf = Sinbadflow()
-# elem1 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/fail', Trigger.OK_ALL)
-# elem2 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok', Trigger.OK_PREV)
-# elem3 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok', Trigger.OK_ALL)
-# elem4 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok')
-# elem5 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok')
-# elem6 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/fail', Trigger.OK_PREV)
-# elem7 = Pipe('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok', Trigger.FAIL_PREV)
+# elem1 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/fail', Trigger.OK_ALL)
+# elem2 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok', Trigger.OK_PREV)
+# elem3 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok', Trigger.OK_ALL)
+# elem4 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok')
+# elem5 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok')
+# elem6 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/fail', Trigger.OK_PREV)
+# elem7 = BaseAgent('/Users/eimantas.jazukevicius@storebrand.no/parallel_run/ok', Trigger.FAIL_PREV)
 
 # ## We can add pipes together with '>>' notation
 # pipeline_one = elem1 >> elem2
