@@ -11,7 +11,7 @@ setuptools.setup(
     version='0.1',
     author="Eimantas Jazonis, Robertas Sys",
     author_email="eimant.jaz@gmail.com, robertas.sys@gmail.com",
-    description="A simple pipeline tool for Databricks notebooks",
+    description="A simple pipeline creation and execution tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
     url="[]",

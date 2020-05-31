@@ -134,6 +134,12 @@ class ExecutorTest(unittest.TestCase):
         self.assertTrue(self.run_store == {},
                         f"Should get nothing, got: {self.run_store}")
 
+    def test_should_run_only_one_element(self):
+        pipeline = Element() >> Element('ok')
+        self.sf_run(pipeline)
+        self.assertTrue(self.run_store == {'ok':1},
+                        f"Should run only one element, got: {self.run_store}")                    
+
     def test_should_run_agent_function(self):
         class DummyAgent(BaseAgent):
             def __init__(self, info):
