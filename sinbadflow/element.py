@@ -1,17 +1,9 @@
 from .utils import Trigger
 from forbiddenfruit import curse
-from .settings import settings
-
-# Library install
-settings.init()
 
 '''Override list __rshift__ method with the __rshift__ functionality using forbiddenfruit library'''
-
-
 def rshift_list(self, elem):
     return Element(self) >> elem
-
-
 curse(list, "__rshift__", rshift_list)
 
 
@@ -20,18 +12,18 @@ class Element():
     with __rshift__ override for connection to one another.
 
     Initialize options:
-      data = payload of the element (notebook path)
-      trigger = element run trigger (see supported triggers in Status IntEnum)
+        data = payload of the element (notebook path)
+        trigger = element run trigger (see supported triggers in Status IntEnum)
 
     Usage:
     For pipeline creation use '>>' symbols between the elements
-      pipeline = Element() >> Element()
+        pipeline = Element() >> Element()
 
     For parallel run use list of BaseAgent's followed by '>>' symbol
-      pipeline = [Element(),Element()] >> Element()
+        pipeline = [Element(),Element()] >> Element()
 
     For pipeline concatenation use the same '>>' symbol
-      pipeline_x >> pipeline_y
+        pipeline_x >> pipeline_y
     '''
 
     def __init__(self, data=None, trigger=Trigger.DEFAULT):

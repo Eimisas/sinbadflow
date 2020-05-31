@@ -1,30 +1,26 @@
 from .utils import Logger, LogLevel
 from .utils import StatusHandler, Status, Trigger
 from concurrent.futures import ThreadPoolExecutor, wait
-from collections import namedtuple
-
-RunResults = namedtuple('RunResults', ['status', 'path'])
-
 
 class Sinbadflow():
-    '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines with databricks notebooks
-    and specific triggers in parallel or single mode. The main component of Sinbadflow - BaseAgent() object from which pipelines are build.
+    '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines with agents functionality
+    and specific triggers in parallel or single mode.
 
     Initialize options:
-    logging_option = print - selects prefered option of logging (print/logging supported)
+        logging_option = print - selects preferred option of logging (print/logging supported)
 
     Methods:
-    run(pipeline: BaseAgent) - runs the input pipeline
-    get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent(), returns the head element form the pipeline
-    print_pipeline(pipeline: BaseAgent) - prints the full pipeline
+        run(pipeline: BaseAgent) - runs the input pipeline
+        get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent,  returns the head element form the pipeline
+        print_pipeline(pipeline: BaseAgent) - logs the full pipeline
 
     Usage example:
-    pipe_x = DatabricksNotebook('/path/to/notebook', Trigger.OK_PREV)
-    pipe_y = DatabricksNotebook('/path/to/notebook', Trigger.FAIL_PREV)
+        pipe_x = DatabricksAgent('/path/to/notebook', Trigger.OK_PREV)
+        pipe_y = DatabricksAgent('/path/to/notebook', Trigger.FAIL_PREV)
 
-    pipeline = pipe_x >> pipe_y
-    sf = Sinbadflow()
-    sf.run(pipeline)
+        pipeline = pipe_x >> pipe_y
+        sf = Sinbadflow()
+        sf.run(pipeline)
     '''
 
     def __init__(self, logging_option=print, status_handler=StatusHandler()):
@@ -35,25 +31,25 @@ class Sinbadflow():
     def run(self, pipeline):
         '''Runs the input pipeline
         Inputs:
-        pipeline : BaseAgent object
+            pipeline : BaseAgent object
 
         Example usage:
-        pipeline = pipe1 >> pipe2
-        sinbadflow_instance.run(pipeline)
+            pipeline = pipe1 >> pipe2
+            sinbadflow_instance.run(pipeline)
         '''
         self.head = self.get_head_from_pipeline(pipeline)
         self.logger.log('Pipeline run started')
-        self.__traverse_pipeline(self.__run_notebooks)
+        self.__traverse_pipeline(self.__run_elements)
         self.logger.log(f'\nPipeline run finished')
         self.status_handler.print_results(self.logger)
 
     def get_head_from_pipeline(self, pipeline):
         '''Returns head pipe from the pipeline
         Inputs:
-        pipeline: BaseAgent object
+            pipeline: BaseAgent object
 
         Returns:
-        BaseAgent (head element)
+            BaseAgent (head element)
         '''
         self.__traverse_pipeline(self.__set_head_element, pipeline, False)
         return self.head
@@ -68,18 +64,14 @@ class Sinbadflow():
         if pipe.prev_elem == None:
             self.head = pipe
 
-    def __run_notebooks(self, elem):
+    def __run_elements(self, elem):
         self.logger.log('\n-----------PIPELINE STEP-----------')
-        triggered_notebooks = self.__get_notebooks_to_execute(elem)
-        self.__execute_elements(triggered_notebooks)
+        triggered_elements = self.__get_elements_to_execute(elem)
+        self.__execute_elements(triggered_elements)
 
-    def __get_notebooks_to_execute(self, elem):
-        triggered_notebooks = []
-        for elm in elem.data:
-            if elm.data == None:
-                continue
-            triggered_notebooks.append(elm)
-        return triggered_notebooks
+    def __get_elements_to_execute(self, element):
+        ##Return elements which are not empty
+        return [elm for elm in element.data if elm.data != None]
 
     def __execute_elements(self, element_list):
         if not len(element_list):
@@ -111,11 +103,11 @@ class Sinbadflow():
         else:
             level = LogLevel.CRITICAL if status == Status.FAIL else LogLevel.INFO
             self.logger.log(
-                f'     Element {element.data} run status: {status.name.replace("_PREV","")}', level)
+                f'     Element "{element.data}" run status: {status.name.replace("_PREV","")}', level)
             return status
 
     def print_pipeline(self, pipeline):
-        '''Prints full visual pipeline'''
+        '''Prints full pipeline'''
         self.head = self.get_head_from_pipeline(pipeline)
         self.logger.log(f'↓     -----START-----')
         self.__traverse_pipeline(self.__print_element)

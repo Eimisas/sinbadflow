@@ -26,9 +26,9 @@ class StatusHandler():
     and result storage.
 
     Methods:
-      is_status_mapped_to_trigger(trigger: Status) -> Bool, returns if the trigger is mapped to current last_status variable
-      add_status(status: Status), adds status to the STATUS_STORE, set last_status variable
-      print_results(), prints all results from STATUS_STORE
+        is_status_mapped_to_trigger(trigger: Status) -> Bool, returns if the trigger is mapped to current last_status variable
+        add_status(status: Status), adds status to the STATUS_STORE, set last_status variable
+        print_results(), prints all results from STATUS_STORE
     '''
 
     def __init__(self):
@@ -51,12 +51,12 @@ class StatusHandler():
         self.last_status = Status.OK_ALL
 
     def is_status_mapped_to_trigger(self, trigger):
-        '''Checks if trigger is mapped to current last_status
+        '''Checks if trigger is mapped to current last_status value
         Input:
-        trigger : Status
+            trigger : Status
 
         Returns:
-        Bool
+            Bool
         '''
         if trigger in [Trigger.OK_ALL, Trigger.FAIL_ALL]:
             return self.__is_status_global_all_level(trigger)
@@ -68,12 +68,10 @@ class StatusHandler():
         return True if self.STATUS_STORE[trigger.name.replace('_ALL', '')] == self.__get_total() else False
 
     def add_status(self, result_statuses):
-        '''Adds status to the STATUS_STORE. Depending if there are more than one status passed
-        and last status is not FAIL_ALL or OK_ALL, the last_status is accumulated using reduce
-        function with logical & operator.
+        '''Adds status to the STATUS_STORE.
 
         Input:
-        result_statuses: list of Status
+            result_statuses: list of Status
         '''
         for rs in result_statuses:
             self.status_func_map[rs]()
@@ -97,7 +95,10 @@ class StatusHandler():
         return self.STATUS_STORE['OK']+self.STATUS_STORE['FAIL']
 
     def print_results(self, logger=Logger(print)):
-        '''Prints STATUSTORE results'''
+        '''Logs STATUSTORE results with certain logger
+        Input:
+            logger - Logger object
+        '''
         logger.log('\n-----------RESULTS-----------', LogLevel.INFO)
         self.STATUS_STORE['TOTAL'] = self.__get_total() + \
             self.STATUS_STORE['SKIPPED']

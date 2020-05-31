@@ -10,7 +10,7 @@ class Logger():
   '''Logger used in Sinbadflow pipeline builder. Currently 'print', 'logging' and inner class 'EmptyLogger' functionality is supported.
   
   Initialize options:
-  method = selects prefered option of logging (print/logging objects supported)
+    method = selects preferred option of logging (print/logging objects supported)
   
   Methods:
     log(message: string, level=Level.INFO: internal Level enum)
