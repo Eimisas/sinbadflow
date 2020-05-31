@@ -2,7 +2,7 @@ from ..utils import Trigger
 from .base_agent import BaseAgent
 from ..settings import settings
 
-# Library install
+# Library install with dbutils
 settings.init()
 
 class DatabricksAgent(BaseAgent):

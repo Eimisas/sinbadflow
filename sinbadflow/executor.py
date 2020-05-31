@@ -1,5 +1,5 @@
 from .utils import Logger, LogLevel
-from .utils import StatusHandler, Status, Trigger
+from .utils import StatusHandler, Status
 from concurrent.futures import ThreadPoolExecutor, wait
 
 class Sinbadflow():
