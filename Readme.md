@@ -1,5 +1,7 @@
 ![Logo](img/logo.png)
-# Sinbadflow - simple pipeline creation and execution tool
+# Simple pipeline creation and execution tool
+
+![Tests](https://github.com/Eimisas/Sinbadflow/workflows/Tests/badge.svg)
 
 Sinbadflow is a simple pipeline execution tool. It was created having Databricks notebooks workflow in mind, however with few small changes it can be customized to fit any task. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run agents with specific triggers in parallel or single mode. With the simple and intuitive syntax we can create elaborative pipelines to help with any data engineering, data science or software development task.
 
