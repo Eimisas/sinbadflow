@@ -76,6 +76,26 @@ pipeline = DummyAgent('secret_data') >> [DummyAgent('simple_data'), DummyAgent('
 sf.run(pipeline)
 ```
 
+## Conditional function application
+
+Sinbadflow also supports the use of additional conditional function which can be used for scheduling or other conditional actions before the element run. To assign conditional function to the element:
+
+```python
+def f():
+    if self.data != 'ok':
+        return False
+    return True
+
+pipeline = dbr('ok', conditional_func = f) >> dbr('fail', conditional_func=f)        
+```
+Sinbadflow will run the first element and will skip the second one. To map one function to the whole pipeline use:
+
+```python
+from sinbadflow.utils import apply_condition_func
+
+pipeline = apply_condition_func(pipeline, f)
+```
+
 ## Additional help
 
 Use built in ```help()``` method for additional information. Do not hesitate to contact me with any question. Pull requests are encouraged!

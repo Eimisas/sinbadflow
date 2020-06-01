@@ -66,12 +66,11 @@ class Sinbadflow():
 
     def __run_elements(self, elem):
         self.logger.log('\n-----------PIPELINE STEP-----------')
-        triggered_elements = self.__get_elements_to_execute(elem)
+        triggered_elements = self.__get_non_empty_elements_to_execute(elem)
         self.__execute_elements(triggered_elements)
 
-    def __get_elements_to_execute(self, element):
-        ##Return elements which are not empty
-        return [elm for elm in element.data if elm.data != None]
+    def __get_non_empty_elements_to_execute(self, element):
+        return [elem for elem in element.data if elem.data != None]
 
     def __execute_elements(self, element_list):
         if not len(element_list):
@@ -85,7 +84,7 @@ class Sinbadflow():
         self.status_handler.add_status(result_statuses)
 
     def __execute(self, element):
-        if not self.__is_trigger_initiated(element.trigger):
+        if not self.__is_trigger_initiated(element.trigger) or not element.is_conditional_func_passed():
             result_status = Status.SKIPPED
         else:
             try:
