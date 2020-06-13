@@ -38,7 +38,8 @@ The flow can be controlled by using triggers. Sinbadflow supports these triggers
 An example workflow would look like this:
 
 ```python
-pipeline = dbr('/execute') >> [dbr('/handle_ok', Trigger.OK_PREV), dbr('/handle_fail', Trigger.FAIL_PREV)] >> dbr('/save_all', Trigger.OK_ALL) >> dbr('/log_all_failed', Trigger.FAIL_ALL)
+pipeline = (dbr('/execute') >> [dbr('/handle_ok', Trigger.OK_PREV), dbr('/handle_fail', Trigger.FAIL_PREV)]
+             >> dbr('/save_all', Trigger.OK_ALL) >> dbr('/log_all_failed', Trigger.FAIL_ALL))
 ```
 To run the pipeline:
 
