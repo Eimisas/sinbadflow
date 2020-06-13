@@ -8,25 +8,26 @@ curse(list, "__rshift__", rshift_list)
 
 
 class Element():
-    '''Main component of pipeline which are executed by Sinbadflow. Element object follows a linked list implementation
+    '''Base component of BaseAgent which are executed by Sinbadflow. Element object follows a linked list implementation
     with __rshift__ override for connection to one another.
 
-    Initialize options:
-        data = payload of the element (notebook path)
-        trigger = element run trigger (see supported triggers in Status IntEnum)
+    Attributes:
+        data: string - payload of the element (notebook path)
+        trigger: Trigger - element run trigger (see supported triggers in Status IntEnum)
 
-    Usage:
-    For pipeline creation use '>>' symbols between the elements
-        pipeline = Element() >> Element()
+    Usage example:
+    
+        For pipeline creation use '>>' symbols between the elements
+            pipeline = Element() >> Element()
 
-    For parallel run use list of BaseAgent's followed by '>>' symbol
-        pipeline = [Element(),Element()] >> Element()
+        For parallel run use list of BaseAgent's followed by '>>' symbol
+            pipeline = [Element(),Element()] >> Element()
 
-    For pipeline concatenation use the same '>>' symbol
-        pipeline_x >> pipeline_y
+        For pipeline concatenation use the same '>>' symbol
+            pipeline_x >> pipeline_y
     '''
 
-    def __init__(self, data=None, trigger=Trigger.DEFAULT):
+    def __init__(self, data, trigger=Trigger.DEFAULT):
         self.data = data
         self.trigger = trigger
         self.next_elem = None
