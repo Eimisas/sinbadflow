@@ -2,19 +2,23 @@ from .utils import Logger, LogLevel
 from .utils import StatusHandler, Status
 from concurrent.futures import ThreadPoolExecutor, wait
 
-class Sinbadflow():
-    '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines with agents functionality
-    and specific triggers in parallel or single mode.
 
-    Initialize options:
+class Sinbadflow():
+    '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines made of agents
+    with specific triggers and conditional functions in parallel (using ThreadPoolExecutor) or single mode.
+
+    Attributes:
         logging_option = print - selects preferred option of logging (print/logging supported)
+        status_handler=StatusHandler() - object used for status to trigger comparison and result retrieval
+        log_errors=False - flag to set explicit error logging with preferred logging_option
 
     Methods:
         run(pipeline: BaseAgent) - runs the input pipeline
-        get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent,  returns the head element form the pipeline
+        get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent - returns the head element form the pipeline
         print_pipeline(pipeline: BaseAgent) - logs the full pipeline
 
     Usage example:
+
         pipe_x = DatabricksAgent('/path/to/notebook', Trigger.OK_PREV)
         pipe_y = DatabricksAgent('/path/to/notebook', Trigger.FAIL_PREV)
 
@@ -23,18 +27,20 @@ class Sinbadflow():
         sf.run(pipeline)
     '''
 
-    def __init__(self, logging_option=print, status_handler=StatusHandler()):
+    def __init__(self, logging_option=print, status_handler=StatusHandler(), log_errors=False):
         self.status_handler = status_handler
         self.logger = Logger(logging_option)
+        self.log_errors = log_errors
         self.head = None
 
     def run(self, pipeline):
         '''Runs the input pipeline
-        Inputs:
+
+        Args:
             pipeline : BaseAgent object
 
         Example usage:
-            pipeline = pipe1 >> pipe2
+            pipeline = element1 >> element2
             sinbadflow_instance.run(pipeline)
         '''
         self.head = self.get_head_from_pipeline(pipeline)
@@ -45,7 +51,8 @@ class Sinbadflow():
 
     def get_head_from_pipeline(self, pipeline):
         '''Returns head pipe from the pipeline
-        Inputs:
+
+        Args:
             pipeline: BaseAgent object
 
         Returns:
@@ -84,20 +91,24 @@ class Sinbadflow():
         self.status_handler.add_status(result_statuses)
 
     def __execute(self, element):
-        if not self.__is_trigger_initiated(element.trigger) or not element.is_conditional_func_passed():
+        if not self.__is_trigger_initiated(element.trigger) or not element.conditional_func():
             result_status = Status.SKIPPED
         else:
             try:
                 element.run()
                 result_status = Status.OK
             except Exception as e:
+                if self.log_errors:
+                    self.logger.log(e, LogLevel.CRITICAL)
                 result_status = Status.FAIL
         return self.__log_and_return_result(result_status, element)
 
     def __log_and_return_result(self, status, element):
         if status == Status.SKIPPED:
-            self.logger.log(f'     SKIPPED: Trigger rule failed for element {element.data}: Element trigger rule -> {element.trigger.name}' +
-                            f' and previous run status -> {self.status_handler.last_status.name}', LogLevel.WARNING)
+            conditional_part, func_name = (
+                ' or conditional function', f', conditional_func -> {element.conditional_func.__name__}()') if element.conditional_func.__name__ != 'default_func' else ('','')
+            self.logger.log(f'     SKIPPED: Trigger rule{conditional_part} failed for element {element.data}: Element trigger rule -> {element.trigger.name}' +
+                            f' and previous run status -> {self.status_handler.last_status.name}{func_name}', LogLevel.WARNING)
             return status
         else:
             level = LogLevel.CRITICAL if status == Status.FAIL else LogLevel.INFO
@@ -106,7 +117,11 @@ class Sinbadflow():
             return status
 
     def print_pipeline(self, pipeline):
-        '''Prints full pipeline'''
+        '''Prints full pipeline
+        
+        Args:
+            pipeline: BaseAgent
+        '''
         self.head = self.get_head_from_pipeline(pipeline)
         self.logger.log(f'↓     -----START-----')
         self.__traverse_pipeline(self.__print_element)
@@ -114,7 +129,7 @@ class Sinbadflow():
 
     def __print_element(self, elem):
         self.logger.log(
-            f'↓     Element {elem} with agents and triggers: {[(elem.data, elem.trigger.name) for elem in elem.data]}')
+            f'↓     Pipe object {elem} with elements to run with triggers and conditional function {[(el.data, el.trigger.name, el.conditional_func.__name__) for el in elem.data]}')
 
     def __is_trigger_initiated(self, trigger):
         return self.status_handler.is_status_mapped_to_trigger(trigger)

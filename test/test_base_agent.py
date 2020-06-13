@@ -35,5 +35,5 @@ class BaseAgentTest(unittest.TestCase):
         def f():
             return 100
         d = TestAgent('data', conditional_func=f)
-        self.assertTrue(d.is_conditional_func_passed() == 100,
-                        f'Should return 100, got {d.is_conditional_func_passed()}')
+        self.assertTrue(d.conditional_func() == 100,
+                        f'Should return 100, got {d.conditional_func()}')

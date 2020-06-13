@@ -1,6 +1,7 @@
 import logging
 
 def init():
+    '''Method used to install forbiddenfruit library on databricks notebook'''
     try:
         dbutils.library.installPyPI('forbiddenfruit')
     except:

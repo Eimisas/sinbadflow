@@ -6,7 +6,7 @@ from sinbadflow.utils import Logger, LogLevel
 from unittest import mock
 from mock import patch
 from collections import namedtuple
-from sinbadflow.utils import StatusHandler, Trigger, Status, apply_condition_func
+from sinbadflow.utils import StatusHandler, Trigger, Status, apply_conditional_func
 from sinbadflow.agents.base_agent import BaseAgent
 
 
@@ -17,7 +17,7 @@ class TestAgent(BaseAgent):
 class ExecutorTest(unittest.TestCase):
 
     def mock_run(self, element):
-        if not self.sf._Sinbadflow__is_trigger_initiated(element.trigger) or not element.is_conditional_func_passed():
+        if not self.sf._Sinbadflow__is_trigger_initiated(element.trigger) or not element.conditional_func():
             result_status = Status.SKIPPED
         else:
             if 'fail' not in element.data:
@@ -178,7 +178,7 @@ class ExecutorTest(unittest.TestCase):
 
         pipeline = TestAgent('ok1') >> TestAgent('ok2') >> [
             TestAgent('ok3'), TestAgent('ok4'), TestAgent('ok5')] >> TestAgent('ok6')
-        pipeline = apply_condition_func(pipeline, condi)
+        pipeline = apply_conditional_func(pipeline, condi)
         summed = pipeline >> TestAgent('ok7')
         self.sf_run(summed)
         self.assertTrue(self.run_store == {'ok7': 1},

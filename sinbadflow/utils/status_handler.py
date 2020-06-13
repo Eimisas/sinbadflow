@@ -1,6 +1,5 @@
 from enum import IntEnum
 from .logger import Logger, LogLevel
-from functools import reduce
 
 
 class Status(IntEnum):
@@ -13,7 +12,7 @@ class Status(IntEnum):
 
 
 class Trigger(IntEnum):
-    '''Pipe object triggers'''
+    '''BaseAgent object triggers'''
     DEFAULT = 0
     FAIL_ALL = 1
     FAIL_PREV = 2
@@ -26,9 +25,9 @@ class StatusHandler():
     and result storage.
 
     Methods:
-        is_status_mapped_to_trigger(trigger: Status) -> Bool, returns if the trigger is mapped to current last_status variable
-        add_status(status: Status), adds status to the STATUS_STORE, set last_status variable
-        print_results(), prints all results from STATUS_STORE
+        is_status_mapped_to_trigger(trigger: Status) -> Bool - returns if the trigger is mapped to current last_status variable
+        add_status(status: Status) - adds status to the STATUS_STORE, set last_status variable
+        print_results() - prints all results from STATUS_STORE
     '''
 
     def __init__(self):
@@ -43,16 +42,12 @@ class StatusHandler():
             Status.OK: [Trigger.DEFAULT, Trigger.OK_PREV],
             Status.OK_ALL: [Trigger.DEFAULT, Trigger.OK_ALL, Trigger.OK_PREV]
         }
-        self.status_func_map = {
-            Status.SKIPPED: self.__add_skipped,
-            Status.OK: self.__add_ok,
-            Status.FAIL: self.__add_fail
-        }
         self.last_status = Status.OK_ALL
 
     def is_status_mapped_to_trigger(self, trigger):
-        '''Checks if trigger is mapped to current last_status value
-        Input:
+        '''Checks if trigger is mapped to current last_status
+
+        Args:
             trigger : Status
 
         Returns:
@@ -65,26 +60,17 @@ class StatusHandler():
         return False
 
     def __is_status_global_all_level(self, trigger):
-        return True if self.STATUS_STORE[trigger.name.replace('_ALL', '')] == self.__get_total() else False
+        return self.STATUS_STORE[trigger.name.replace('_ALL', '')] == self.__get_total()
 
     def add_status(self, result_statuses):
         '''Adds status to the STATUS_STORE.
 
-        Input:
+        Args:
             result_statuses: list of Status
         '''
         for rs in result_statuses:
-            self.status_func_map[rs]()
+            self.STATUS_STORE[rs.name] += 1
         self.__set_last_status(result_statuses)
-
-    def __add_skipped(self):
-        self.STATUS_STORE['SKIPPED'] += 1
-
-    def __add_ok(self):
-        self.STATUS_STORE['OK'] += 1
-
-    def __add_fail(self):
-        self.STATUS_STORE['FAIL'] += 1
 
     def __set_last_status(self, result_statuses):
         min_status = min(result_statuses)
@@ -95,9 +81,11 @@ class StatusHandler():
         return self.STATUS_STORE['OK']+self.STATUS_STORE['FAIL']
 
     def print_results(self, logger=Logger(print)):
-        '''Logs STATUSTORE results with certain logger
-        Input:
-            logger - Logger object
+        '''Prints STATUSTORE results
+
+        Args:
+            logger=Logger(print): Logger object
+
         '''
         logger.log('\n-----------RESULTS-----------', LogLevel.INFO)
         self.STATUS_STORE['TOTAL'] = self.__get_total() + \
