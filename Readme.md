@@ -38,8 +38,10 @@ The flow can be controlled by using triggers. Sinbadflow supports these triggers
 An example workflow would look like this:
 
 ```python
-pipeline = (dbr('/execute') >> [dbr('/handle_ok', Trigger.OK_PREV), dbr('/handle_fail', Trigger.FAIL_PREV)]
-             >> dbr('/save_all', Trigger.OK_ALL) >> dbr('/log_all_failed', Trigger.FAIL_ALL))
+pipeline = (dbr('/execute') >> 
+            [dbr('/handle_ok', Trigger.OK_PREV), dbr('/handle_fail', Trigger.FAIL_PREV)] >>
+             dbr('/save_all', Trigger.OK_ALL) >>
+             dbr('/log_all_failed', Trigger.FAIL_ALL))
 ```
 To run the pipeline:
 
@@ -67,7 +69,9 @@ from datetime import date
 def is_monday():
     return date.today().weekday() == 0
         
-pipeline = dbr('/notebook1', conditional_func=is_monday) >> dbr('/notebook2', conditional_func=is_monday)
+pipeline = (dbr('/notebook1', conditional_func=is_monday) >> 
+            dbr('/notebook2', conditional_func=is_monday)
+            )
 ```
 In the example above notebooks will be skipped if today is not Monday because of `conditional_fuc` function. Sinbadflow also provides ability to apply conditional function to the whole pipeline using `apply_conditional_func` method.
 
@@ -106,6 +110,45 @@ sf = Sinbadflow()
 sf.run(pipeline)
 
 ```
+
+## DatabricksAgent - cluster modes
+
+Out of the box Sinbadflow comes with `DatabricksAgent` which can be used to run Databricks notebooks on interactive or job clusters. `DatabricksAgent` init arguments:
+
+```python
+notebook_path                                    #Notebook location in the workspace
+trigger = Trigger.DEFAULT                        #Trigger
+timeout=1800                                     #Notebook run timeout
+args={}                                          #Notebook arguments
+cluster_mode='interactive'                       #Cluster mode (interactive/job)
+job_args={"spark_version": "6.4.x-scala2.11",
+          "node_type_id": "Standard_DS3_v2",
+          "num_workers": 2}                      #Job cluster parameters  
+conditional_func=default_func()                  #Conditional function
+```
+
+By default the notebook will be executed on interactive cluster using `dbutils` library. To run notebook on separate job cluster use the following code:
+
+```python
+from sinbadflow.agents.databricks import DatabricksAgent as dbr
+from sinbadflow.executor import Sinbadflow
+
+new_job_args = dbr().job_args #get default parameters
+new_job_args['num_workers'] = 10 #add more workers
+
+job_notebook = dbr('notebook1', job_args=new_job_args, cluster_mode='job')
+interactive_notebook = dbr('notebook2')
+
+pipeline = job_notebook >> interactive_notebook
+
+##Access token is used for job cluster creation and notebook submission
+JobSubmitter.set_access_token('<DATABRICKS ACCESS TOKEN>')
+
+sf = Sinbadflow()
+sf.run(pipeline)
+```
+
+As shown in the example above you can mix and match agent runs on interactive/job clusters to achieve the optimal solution.
 
 ## Additional help
 

@@ -17,7 +17,7 @@ class DatabricksAgent(BaseAgent):
         run()
     '''
 
-    def __init__(self, notebook_path, trigger = Trigger.DEFAULT, timeout=1800,
+    def __init__(self, notebook_path=None, trigger = Trigger.DEFAULT, timeout=1800,
                 args={}, cluster_mode='interactive',
                 job_args={"spark_version": "6.4.x-scala2.11", "node_type_id": "Standard_DS3_v2", "num_workers": 2}, **kwargs):
         self.notebook_path = notebook_path
