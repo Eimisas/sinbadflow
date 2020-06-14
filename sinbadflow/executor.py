@@ -27,8 +27,11 @@ class Sinbadflow():
         sf.run(pipeline)
     '''
 
-    def __init__(self, logging_option=print, status_handler=StatusHandler(), log_errors=False):
-        self.status_handler = status_handler
+    def __init__(self, logging_option=print, status_handler=None, log_errors=False):
+        if status_handler:
+            self.status_handler = status_handler
+        else:
+            self.status_handler = StatusHandler()
         self.logger = Logger(logging_option)
         self.log_errors = log_errors
         self.head = None
