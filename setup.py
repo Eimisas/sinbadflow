@@ -8,7 +8,7 @@ requirements = ["mock>=2", "setuptools>=40.8",
 
 setuptools.setup(
     name='sinbadflow',
-    version='0.2',
+    version='0.3',
     author="Eimantas Jazonis, Robertas Sys, Emilija Lamanauskaite",
     author_email="eimant.jaz@gmail.com, robertas.sys@gmail.com, emilijalamanauskaite@gmail.com",
     description="A simple pipeline creation and execution tool",
