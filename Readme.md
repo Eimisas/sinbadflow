@@ -1,4 +1,4 @@
-![Logo](img/logo.png)
+![Logo](https://raw.githubusercontent.com/Eimisas/sinbadflow/master/img/logo.png)
 # Simple pipeline creation and execution tool
 
 ![Tests](https://github.com/Eimisas/Sinbadflow/workflows/Tests/badge.svg)
@@ -81,7 +81,7 @@ pipeline = apply_conditional_func(pipeline, is_monday)
 
 ## Custom Agents
 
-Sinbadflow provides abiliety to create your own agents. In order to do that, your agent must inherit from ```BaseAgent``` class, pass the ```data``` and `trigger` parameters to parent class (also `**kwargs` if conditional function is needed) and implement ```run()``` method. An example ```DummyAgent```:
+Sinbadflow provides ability to create your own agents. In order to do that, your agent must inherit from ```BaseAgent``` class, pass the ```data``` and `trigger` parameters to parent class (also `**kwargs` if you are planning to use conditional functions) and implement ```run()``` method. An example ```DummyAgent```:
 
 ```python
 from sinbadflow.agents import BaseAgent
@@ -109,7 +109,7 @@ sf.run(pipeline)
 
 ## Additional help
 
-Use built in ```help()``` method for additional information. Do not hesitate to contact me with any question. Pull requests are encouraged!
+Use built in ```help()``` method for additional information about the classes and methods. Do not hesitate to contact me with any question. Pull requests are encouraged!
 
 ## Contributors
 

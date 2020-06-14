@@ -7,14 +7,14 @@ requirements = ["mock>=2", "setuptools>=40.8",
                 "forbiddenfruit>=0.1.3"]
 
 setuptools.setup(
-    name='Sinbadflow',
+    name='sinbadflow',
     version='0.1',
     author="Eimantas Jazonis, Robertas Sys, Emilija Lamanauskaite",
     author_email="eimant.jaz@gmail.com, robertas.sys@gmail.com, emilijalamanauskaite@gmail.com",
     description="A simple pipeline creation and execution tool",
     long_description=long_description,
     long_description_content_type="text/markdown",
-    url="[]",
+    url="https://github.com/Eimisas/sinbadflow",
     packages=setuptools.find_packages(exclude=('test',)),
     install_requires=requirements,
     classifiers=[
