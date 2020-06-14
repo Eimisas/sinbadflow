@@ -16,7 +16,7 @@ To install use:
 Sinbadflow supports single or parallel run with different execution triggers. To build a pipeline use ```>>``` symbol between two agents. Example Databricks notebooks pipeline (one-by-one execution):
 
 ```python
-from sinbadflow.agents import DatabricksAgent as dbr
+from sinbadflow.agents.databricks import DatabricksAgent as dbr
 from sinbadflow import Trigger
 
 pipeline = dbr('/path/to/notebook1') >> dbr('path/to/another/notebook')
@@ -61,7 +61,7 @@ one_element_pipeline = dbr() >> dbr('single_notebook_to_run')
 For more flexible workflow control Sinbadflow also supports conditional functions check. This serves as more elaborative triggers for the agents. 
 
 ```python
-from sinbadflow.agents import DatabricksAgent as dbr
+from sinbadflow.agents.databricks import DatabricksAgent as dbr
 from datetime import date
 
 def is_monday():
