@@ -1,7 +1,8 @@
 import requests
 import json
 import time
-
+import logging
+from ..settings.dbr_vars import *
 
 class RunStatusError(Exception):
     '''Custom exception class used in JobSubmitter class'''
@@ -22,6 +23,13 @@ class NoTokenError(Exception):
     '''Custom exception class used in JobSubmitter class'''
     pass
 
+## Native Databricks variable setup - will only work in Databricks environment
+try:
+    spark = get_spark()
+    dbutils = get_dbutils(spark)
+except:
+    logging.warning('!!! Failed to set dbutils variable which is used to run notebooks on interactive cluster. Make sure you are inside Databricks environment !!!')    
+## Native Databricks variable setup - will only work in Databricks environment
 
 class JobSubmitter():
     '''JobSubmitter object runs databricks notebook on job or interactive cluster.
