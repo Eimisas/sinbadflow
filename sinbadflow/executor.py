@@ -19,10 +19,10 @@ class Sinbadflow():
 
     Usage example:
 
-        pipe_x = DatabricksAgent('/path/to/notebook', Trigger.OK_PREV)
-        pipe_y = DatabricksAgent('/path/to/notebook', Trigger.FAIL_PREV)
+        elem_x = DatabricksAgent('/path/to/notebook', Trigger.OK_PREV)
+        elem_y = DatabricksAgent('/path/to/notebook', Trigger.FAIL_PREV)
 
-        pipeline = pipe_x >> pipe_y
+        pipeline = elem_x >> elem_y
         sf = Sinbadflow()
         sf.run(pipeline)
     '''
@@ -53,7 +53,7 @@ class Sinbadflow():
         self.status_handler.print_results(self.logger)
 
     def get_head_from_pipeline(self, pipeline):
-        '''Returns head pipe from the pipeline
+        '''Returns head element from the pipeline
 
         Args:
             pipeline: BaseAgent object
@@ -70,9 +70,9 @@ class Sinbadflow():
             func(pointer)
             pointer = pointer.next_elem if forward else pointer.prev_elem
 
-    def __set_head_element(self, pipe):
-        if pipe.prev_elem == None:
-            self.head = pipe
+    def __set_head_element(self, elem):
+        if elem.prev_elem == None:
+            self.head = elem
 
     def __run_elements(self, elem):
         self.logger.log('\n-----------PIPELINE STEP-----------')
@@ -109,7 +109,7 @@ class Sinbadflow():
     def __log_and_return_result(self, status, element):
         if status == Status.SKIPPED:
             conditional_part, func_name = (
-                ' or conditional function', f', conditional_func -> {element.conditional_func.__name__}()') if element.conditional_func.__name__ != 'default_func' else ('','')
+                ' or conditional function', f', conditional_func -> {element.conditional_func.__name__}()') if element.conditional_func.__name__ != 'default_func' else ('', '')
             self.logger.log(f'     SKIPPED: Trigger rule{conditional_part} failed for element {element.data}: Element trigger rule -> {element.trigger.name}' +
                             f' and previous run status -> {self.status_handler.last_status.name}{func_name}', LogLevel.WARNING)
             return status
@@ -121,7 +121,7 @@ class Sinbadflow():
 
     def print_pipeline(self, pipeline):
         '''Prints full pipeline
-        
+
         Args:
             pipeline: BaseAgent
         '''
@@ -132,7 +132,10 @@ class Sinbadflow():
 
     def __print_element(self, elem):
         self.logger.log(
-            f'↓     Pipe object {elem} with elements to run with triggers and conditional function {[(el.data, el.trigger.name, el.conditional_func.__name__) for el in elem.data]}')
+            f'''↓     Agent(s) to run: {[("• name: "+type(el).__name__ +
+                                        ", data: "+str(el.data)+", trigger: "+
+                                        el.trigger.name+", conditional_func: "+
+                                        el.conditional_func.__name__+"()") for el in elem.data]}''')
 
     def __is_trigger_initiated(self, trigger):
         return self.status_handler.is_status_mapped_to_trigger(trigger)

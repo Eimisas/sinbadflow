@@ -5,7 +5,7 @@
 
 Sinbadflow is a simple pipeline creation and execution tool. It was created having Databricks notebooks workflow in mind, however with flexible implementation options the tool can be customized to fit any task. Named after famous cartoon "Sinbad: Legend of the Seven Seas" the library provides ability to create and run agents with specific triggers and conditional functions in parallel or single mode. With the simple, yet intuitive, code based syntax we can create elaborative pipelines to help with any data engineering, data science or software development task.
 
-## Instalation
+## Installation
 
 To install use:
 
@@ -121,20 +121,31 @@ trigger = Trigger.DEFAULT                        #Trigger
 timeout=1800                                     #Notebook run timeout
 args={}                                          #Notebook arguments
 cluster_mode='interactive'                       #Cluster mode (interactive/job)
-job_args={"spark_version": "6.4.x-scala2.11",
-          "node_type_id": "Standard_DS3_v2",
-          "num_workers": 2}                      #Job cluster parameters  
+job_args={)                                      #Job cluster parameters  
 conditional_func=default_func()                  #Conditional function
+```
+Default `job_args` parameters for job cluster creation (more information about job_args <a href='https://docs.databricks.com/dev-tools/api/latest/jobs.html'>see here</a>):
+
+```python
+{
+    'spark_version': '6.4.x-scala2.11',
+    'node_type_id': 'Standard_DS3_v2',
+    'driver_node_type_id': 'Standard_DS3_v2',
+    'num_workers': 1
+}    
 ```
 
 By default the notebook will be executed on interactive cluster using `dbutils` library. To run notebook on separate job cluster use the following code:
 
 ```python
-from sinbadflow.agents.databricks import DatabricksAgent as dbr
+from sinbadflow.agents.databricks import DatabricksAgent as dbr, JobSubmitter
 from sinbadflow.executor import Sinbadflow
 
-new_job_args = dbr().job_args #get default parameters
-new_job_args['num_workers'] = 10 #add more workers
+#set new job_args
+new_job_args = {
+    'num_workers':10,
+    'driver_node_type_id': 'Standard_DS3_v2'
+    }
 
 job_notebook = dbr('notebook1', job_args=new_job_args, cluster_mode='job')
 interactive_notebook = dbr('notebook2')

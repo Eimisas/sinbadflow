@@ -21,7 +21,7 @@ class Trigger(IntEnum):
 
 
 class StatusHandler():
-    '''StatusHandler class is a part of Sinbadflow used for status mapping to triggers, determining if pipe is triggered
+    '''StatusHandler class is a part of Sinbadflow used for status mapping to triggers, determining if element is triggered
     and result storage.
 
     Methods:
