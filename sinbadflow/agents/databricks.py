@@ -11,15 +11,15 @@ class DatabricksAgent(BaseAgent):
         timeout=1800 - timeout used for databricks jobs
         args={} - arguments passed to databricks jobs
         cluster_mode='interactive' - databricks cluster mode selection (interactive/job supported)
-        job_args={"spark_version": "6.4.x-scala2.11", "node_type_id": "Standard_DS3_v2", "num_workers": 2} - default job cluster parameters
+        job_args: dict - job cluster parameters. Values that can be changed: 'spark_version', 'node_type_id',
+        'driver_node_type_id', 'num_workers'. For more information see - https://docs.databricks.com/dev-tools/api/latest/jobs.html
 
     Methods:
         run()
     '''
 
     def __init__(self, notebook_path=None, trigger = Trigger.DEFAULT, timeout=1800,
-                args={}, cluster_mode='interactive',
-                job_args={"spark_version": "6.4.x-scala2.11", "node_type_id": "Standard_DS3_v2", "num_workers": 2}, **kwargs):
+                args={}, cluster_mode='interactive', job_args={}, **kwargs):
         self.notebook_path = notebook_path
         self.trigger = trigger
         self.timeout = timeout

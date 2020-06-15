@@ -4,6 +4,7 @@ import time
 import logging
 from ..settings.dbr_vars import *
 
+
 class RunStatusError(Exception):
     '''Custom exception class used in JobSubmitter class'''
     pass
@@ -23,13 +24,16 @@ class NoTokenError(Exception):
     '''Custom exception class used in JobSubmitter class'''
     pass
 
-## Native Databricks variable setup - will only work in Databricks environment
+
+# Native Databricks variable setup - will only work in Databricks environment
 try:
     spark = get_spark()
     dbutils = get_dbutils(spark)
 except:
-    logging.warning('!!! Failed to set dbutils variable which is used to run notebooks on interactive cluster. Make sure you are inside Databricks environment !!!')    
-## Native Databricks variable setup - will only work in Databricks environment
+    logging.warning(
+        '!!! Failed to set dbutils variable which is used to run notebooks on interactive cluster. Make sure you are inside Databricks environment !!!')
+# Native Databricks variable setup - will only work in Databricks environment
+
 
 class JobSubmitter():
     '''JobSubmitter object runs databricks notebook on job or interactive cluster.
@@ -55,9 +59,12 @@ class JobSubmitter():
                 f'Wrong cluster_mode selected, Dbr object supports "interactive" or "job" modes, {self.cluster_mode} was passed')
 
         self.__job_args = {
-            "new_cluster":
-            {"spark_env_vars":
-             {"PYSPARK_PYTHON": "/databricks/python3/bin/python3"}},
+            "new_cluster": {
+                "spark_env_vars": {"PYSPARK_PYTHON": "/databricks/python3/bin/python3"},
+                'spark_version': '6.4.x-scala2.11',
+                'node_type_id': 'Standard_DS3_v2',
+                'driver_node_type_id': 'Standard_DS3_v2',
+                'num_workers': 1},
             "timeout_seconds": None,
             "notebook_task": {
                 "notebook_path": None},
@@ -67,7 +74,7 @@ class JobSubmitter():
     @classmethod
     def set_access_token(cls, token):
         '''Set up Databricks access token
-        
+
         Args:
           token: string - Databricks access token
         '''
