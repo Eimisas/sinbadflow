@@ -1,7 +1,7 @@
 from .utils import Logger, LogLevel
 from .utils import StatusHandler, Status
 from concurrent.futures import ThreadPoolExecutor, wait
-
+from .element import Element
 
 class Sinbadflow():
     '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines made of agents
@@ -46,11 +46,19 @@ class Sinbadflow():
             pipeline = element1 >> element2
             sinbadflow_instance.run(pipeline)
         '''
+        pipeline = self.__wrap_element_if_single(pipeline)
         self.head = self.get_head_from_pipeline(pipeline)
         self.logger.log('Pipeline run started')
         self.__traverse_pipeline(self.__run_elements)
         self.logger.log(f'\nPipeline run finished')
         self.status_handler.print_results(self.logger)
+
+    def __wrap_element_if_single(self, pipeline):
+        if type(pipeline) == list:
+            return Element(pipeline)
+        elif pipeline.prev_elem == None and pipeline.next_elem == None:
+            return Element([pipeline])
+        return pipeline    
 
     def get_head_from_pipeline(self, pipeline):
         '''Returns head element from the pipeline
@@ -75,7 +83,6 @@ class Sinbadflow():
             self.head = elem
 
     def __run_elements(self, elem):
-        self.logger.log('\n-----------PIPELINE STEP-----------')
         triggered_elements = self.__get_non_empty_elements_to_execute(elem)
         self.__execute_elements(triggered_elements)
 
@@ -85,6 +92,7 @@ class Sinbadflow():
     def __execute_elements(self, element_list):
         if not len(element_list):
             return
+        self.logger.log('\n-----------PIPELINE STEP-----------')
         self.logger.log(
             f'   Executing pipeline element(s): {[elem.data for elem in element_list]}')
         result_statuses = []

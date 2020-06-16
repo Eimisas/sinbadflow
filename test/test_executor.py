@@ -11,8 +11,9 @@ from sinbadflow.agents.base_agent import BaseAgent
 
 
 class TestAgent(BaseAgent):
-        def run(self):
-            pass
+    def run(self):
+        pass
+
 
 class ExecutorTest(unittest.TestCase):
 
@@ -102,7 +103,8 @@ class ExecutorTest(unittest.TestCase):
                         f"Should get {output}, got: {self.run_store}")
 
     def test_should_trigger_works_at_parallel_notebooks_output(self):
-        pipeline = [TestAgent('fail'), TestAgent('ok2')] >> TestAgent('ok3', Trigger.FAIL_PREV)
+        pipeline = [TestAgent('fail'), TestAgent(
+            'ok2')] >> TestAgent('ok3', Trigger.FAIL_PREV)
         self.sf_run(pipeline)
         output = {'ok2': 1, 'ok3': 1}
         self.assertTrue(self.run_store == output,
@@ -142,8 +144,8 @@ class ExecutorTest(unittest.TestCase):
     def test_should_run_only_one_TestAgent(self):
         pipeline = TestAgent() >> TestAgent('ok')
         self.sf_run(pipeline)
-        self.assertTrue(self.run_store == {'ok':1},
-                        f"Should run only one element, got: {self.run_store}")                    
+        self.assertTrue(self.run_store == {'ok': 1},
+                        f"Should run only one element, got: {self.run_store}")
 
     def test_should_run_agent_function(self):
         class DummyAgent(BaseAgent):
@@ -161,13 +163,15 @@ class ExecutorTest(unittest.TestCase):
         dummy2 = DummyAgent('two')
         pipeline = dummy1 >> dummy2
         self.sf.run(pipeline)
-        self.assertTrue(dummy1.number == 100 and dummy2.number == 100, f'Should get dummy numbers as 100, got {dummy1.number, dummy2.number}')
+        self.assertTrue(dummy1.number == 100 and dummy2.number == 100,
+                        f'Should get dummy numbers as 100, got {dummy1.number, dummy2.number}')
 
     def test_should_filter_with_conditional_func(self):
 
         def condi():
             return False
-        pipeline = TestAgent('ok1', conditional_func=condi) >> TestAgent('ok2') >> TestAgent('ok3', conditional_func=condi)
+        pipeline = TestAgent('ok1', conditional_func=condi) >> TestAgent(
+            'ok2') >> TestAgent('ok3', conditional_func=condi)
         self.sf_run(pipeline)
         self.assertTrue(self.run_store == {'ok2': 1},
                         f"Should run only one element (ok2), got: {self.run_store}")
@@ -183,3 +187,24 @@ class ExecutorTest(unittest.TestCase):
         self.sf_run(summed)
         self.assertTrue(self.run_store == {'ok7': 1},
                         f"Should run only one element (ok7), got: {self.run_store}")
+
+    def test_should_run_with_single_element(self):
+        pipeline = TestAgent('ok1')
+        self.sf_run(pipeline)
+        output = {'ok1': 1}
+        self.assertTrue(self.run_store == output,
+                        f"Should get {output}, got: {self.run_store}")
+
+    def test_should_run_with_single_parallel_element(self):
+        pipeline = [TestAgent('ok1'), TestAgent('ok2'), TestAgent('ok3'), TestAgent('ok4')]
+        self.sf_run(pipeline)
+        output = {'ok1': 1, 'ok2': 1, 'ok3': 1, 'ok4': 1}
+        self.assertTrue(self.run_store == output,
+                        f"Should get {output}, got: {self.run_store}")
+
+    def test_should_skip_empty_elements_in_single_parallel_element(self):
+        pipeline = [TestAgent('ok1'), TestAgent(), TestAgent(), TestAgent(), TestAgent('ok9')]
+        self.sf_run(pipeline)
+        output = {'ok1': 1, 'ok9': 1}
+        self.assertTrue(self.run_store == output,
+                        f"Should get {output}, got: {self.run_store}")

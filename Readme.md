@@ -24,7 +24,7 @@ pipeline = dbr('/path/to/notebook1') >> dbr('path/to/another/notebook')
 Parallel run pipeline (agents in list are executed in parallel mode):
 
 ```python
-pipeline = dbr() >> [dbr('/parallel_run_notebook'), dbr('/another_parallel_notebook')]
+pipeline = [dbr('/parallel_run_notebook'), dbr('/another_parallel_notebook')]
 ```
 
 The flow can be controlled by using triggers. Sinbadflow supports these triggers:
@@ -38,10 +38,13 @@ The flow can be controlled by using triggers. Sinbadflow supports these triggers
 An example workflow would look like this:
 
 ```python
-pipeline = (dbr('/execute') >> 
-            [dbr('/handle_ok', Trigger.OK_PREV), dbr('/handle_fail', Trigger.FAIL_PREV)] >>
-             dbr('/save_all', Trigger.OK_ALL) >>
-             dbr('/log_all_failed', Trigger.FAIL_ALL))
+execution = dbr('/execute')
+parallel_handles = [dbr('/handle_ok', Trigger.OK_PREV), dbr('/handle_fail', Trigger.FAIL_PREV)]
+save = dbr('/save_all', Trigger.OK_ALL)
+fail_handling = dbr('/log_all_failed', Trigger.FAIL_ALL)
+
+
+pipeline = execution >> parallel_handles >> save >> fail_handling
 ```
 To run the pipeline:
 
@@ -52,11 +55,7 @@ sf = Sinbadflow()
 
 sf.run(pipeline)
 ```
-The pipeline will be executed and results will be logged with selected method (```print/logging``` supported). Sinbadflow will always run the full pipeline, there is no implementation for early stoppage if the pipeline fails. There should be at least two agents in the pipeline in order for it to work. If you want to run only one agent you can always create an empty agent in front of it, which will be skipped:
-
-```python
-one_element_pipeline = dbr() >> dbr('single_notebook_to_run')
-```
+The pipeline will be executed and results will be logged with selected method (```print/logging``` supported). Sinbadflow will always run the full pipeline, there is no implementation for early stoppage if the pipeline fails.
 
 ## Conditional functions
 
@@ -68,10 +67,11 @@ from datetime import date
 
 def is_monday():
     return date.today().weekday() == 0
-        
-pipeline = (dbr('/notebook1', conditional_func=is_monday) >> 
-            dbr('/notebook2', conditional_func=is_monday)
-            )
+
+notebook1 = dbr('/notebook1', conditional_func=is_monday)
+notebook2 = dbr('/notebook2', conditional_func=is_monday)
+
+pipeline = notebook1 >> notebook2
 ```
 In the example above notebooks will be skipped if today is not Monday because of `conditional_fuc` function. Sinbadflow also provides ability to apply conditional function to the whole pipeline using `apply_conditional_func` method.
 
@@ -94,17 +94,21 @@ from sinbadflow import Sinbadflow
 
 
 class DummyAgent(BaseAgent):
-    def __init__(self, data, trigger=Trigger.DEFAULT, **kwargs):
+    def __init__(self, data=None, trigger=Trigger.DEFAULT, **kwargs):
         super(DummyAgent, self).__init__(data, trigger, **kwargs)
 
     def run(self):
-        print(f'    ------Running my DummyAgent with data: {self.data}')
+        print(f'        Running my DummyAgent with data: {self.data}')
 
 def condition():
     return False
 
-pipeline = DummyAgent('secret_data') >> [DummyAgent(
-    'simple_data', conditional_func=condition), DummyAgent('important_data', Trigger.OK_ALL)]
+secret_data = DummyAgent('secret_data')
+
+parallel_data = [DummyAgent('simple_data', conditional_func=condition),
+                 DummyAgent('important_data', Trigger.OK_ALL)]
+
+pipeline =  secret_data >> parallel_data
 
 sf = Sinbadflow()
 sf.run(pipeline)
