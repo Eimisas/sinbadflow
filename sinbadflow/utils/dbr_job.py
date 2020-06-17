@@ -43,8 +43,8 @@ class JobSubmitter():
       job_args: dictionary - Databricks notebook arguments
 
     Methods:
-      set_access_token (token: string) (class method) - sets up access token for cluster creation
-      submit_notebook(notebook_path: string, timeout: int, args:dict) - submits notebook to job cluster
+      set_access_token (token: string) (class method) - sets up access token for cluster creation \n
+      submit_notebook(notebook_path: string, timeout: int, args:dict) - submits notebook to job cluster \n
       get_job_info(run_id: int) - gets the info about specific run_id'''
 
     __access_token = None

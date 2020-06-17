@@ -3,31 +3,34 @@ import logging
 
 
 class LogLevel(Enum):
-    INFO = 0
-    WARNING = 1
-    CRITICAL = 2
+  '''Enum class used to determine log level'''
+  INFO = 0
+  WARNING = 1
+  CRITICAL = 2
 
 
 class Logger():
     '''Logger class used in Sinbadflow pipeline builder. Currently 'print', 'logging' and inner class 'EmptyLogger' functionality is supported.
 
-    Attributes:
+    Args:
       method: object - selects preferred option of logging (print/logging objects supported)
 
     Methods:
       log(message: string, level=Level.INFO: enum) - logs the message with specific importance level
 
     Objects:
-      class EmptyLogger - logger object with 'log' method used for testing to keep stdout empty
+
+      class EmptyLogger - logger object with 'log' method used for testing to keep stdout empty 
 
     Usage example:
 
-      lg = Logger(logging)
-      lg.log('test', Logger.LogLevel.WARNING) ---> logging.warning('test')
+        lg = Logger(logging)
+        lg.log('test', Logger.LogLevel.WARNING) ---> logging.warning('test')
+
     '''
 
     class EmptyLogger():
-        '''Usually - used for testing'''
+        '''EmptyLogger classs used for testing or empty logging'''
         def log(message):
             pass
 
@@ -56,6 +59,6 @@ class Logger():
 
         Args:
           message: string
-          level=LogLevel.INFO: enum
+          level: enum, LogLevel.INFO by default
         '''
         self.level_to_method[self.method][level](message)

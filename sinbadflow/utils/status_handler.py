@@ -25,8 +25,8 @@ class StatusHandler():
     and result storage.
 
     Methods:
-        is_status_mapped_to_trigger(trigger: Status) -> Bool - returns if the trigger is mapped to current last_status variable
-        add_status(status: Status) - adds status to the STATUS_STORE, set last_status variable
+        is_status_mapped_to_trigger(trigger: Status) -> Bool - returns if the trigger is mapped to current last_status variable \n
+        add_status(status: Status) - adds status to the STATUS_STORE, set last_status variable \n
         print_results() - prints all results from STATUS_STORE
     '''
 
@@ -48,7 +48,7 @@ class StatusHandler():
         '''Checks if trigger is mapped to current last_status
 
         Args:
-            trigger : Status
+            trigger: Status
 
         Returns:
             Bool
@@ -66,7 +66,7 @@ class StatusHandler():
         '''Adds status to the STATUS_STORE.
 
         Args:
-            result_statuses: list of Status
+            result_statuses: list (of Status)
         '''
         for rs in result_statuses:
             self.STATUS_STORE[rs.name] += 1
@@ -84,7 +84,7 @@ class StatusHandler():
         '''Prints STATUSTORE results
 
         Args:
-            logger=Logger(print): Logger object
+            logger: Logger object
 
         '''
         logger.log('\n-----------RESULTS-----------', LogLevel.INFO)

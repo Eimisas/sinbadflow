@@ -1,3 +1,4 @@
+'''Main execution part of Sinbadflow library'''
 from .utils import Logger, LogLevel
 from .utils import StatusHandler, Status
 from concurrent.futures import ThreadPoolExecutor, wait
@@ -7,14 +8,14 @@ class Sinbadflow():
     '''Sinbadflow pipeline runner. Named after famous cartoon "Sinbad: Legend of the Seven Seas" it provides ability to run pipelines made of agents
     with specific triggers and conditional functions in parallel (using ThreadPoolExecutor) or single mode.
 
-    Attributes:
-        logging_option = print - selects preferred option of logging (print/logging supported)
-        status_handler=StatusHandler() - object used for status to trigger comparison and result retrieval
-        log_errors=False - flag to set explicit error logging with preferred logging_option
+    Args:
+        logging_option: object - selects preferred option of logging (print/logging supported), print by default
+        status_handler: StatusHandler - object used for status to trigger comparison and result retrieval, None by default
+        log_errors: boolean - flag to set explicit error logging with preferred logging_option, False by default
 
     Methods:
-        run(pipeline: BaseAgent) - runs the input pipeline
-        get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent - returns the head element form the pipeline
+        run(pipeline: BaseAgent) - runs the input pipeline \n
+        get_head_from_pipeline(pipeline: BaseAgent) -> BaseAgent - returns the head element form the pipeline \n
         print_pipeline(pipeline: BaseAgent) - logs the full pipeline
 
     Usage example:
@@ -40,7 +41,7 @@ class Sinbadflow():
         '''Runs the input pipeline
 
         Args:
-            pipeline : BaseAgent object
+            pipeline: BaseAgent object
 
         Example usage:
             pipeline = element1 >> element2

@@ -166,8 +166,11 @@ sf.run(pipeline)
 As shown in the example above you can mix and match agent runs on interactive/job clusters to achieve the optimal solution.
 
 ## Additional help
+Full API docs can be found <a href='https://eimisas.github.io/sinbadflow_api_docs/index.html' target='_blank'>here</a>.
 
-Use built in ```help()``` method for additional information about the classes and methods. Do not hesitate to contact me with any question. Pull requests are encouraged!
+Use built in ```help()``` method for additional information about the classes and methods. 
+
+Do not hesitate to contact me with any question. Pull requests are encouraged!
 
 ## Contributors
 

@@ -5,20 +5,19 @@ from ..utils.dbr_job import *
 class DatabricksAgent(BaseAgent):
     '''Databricks notebook agent, used to run notebooks on interactive or job clusters
     
-    Attributes:
+    Args:
         notebook_path: string
-        trigger=Trigger.DEFAULT - trigger to run the agent
-        timeout=1800 - timeout used for databricks jobs
-        args={} - arguments passed to databricks jobs
-        cluster_mode='interactive' - databricks cluster mode selection (interactive/job supported)
-        job_args: dict - job cluster parameters. Values that can be changed: 'spark_version', 'node_type_id',
-        'driver_node_type_id', 'num_workers'. For more information see - https://docs.databricks.com/dev-tools/api/latest/jobs.html
+        trigger: Trigger - trigger to run the agent, Trigger.DEFAULT by default
+        timeout: int - timeout used for databricks jobs, 7200 by default
+        args: dict - arguments passed to databricks jobs, {} by default
+        cluster_mode: string - databricks cluster mode selection (interactive/job supported), 'interactive' by default
+        job_args: dict - job cluster parameters. Values that can be changed: 'spark_version', 'node_type_id','driver_node_type_id', 'num_workers'. For more information see - https://docs.databricks.com/dev-tools/api/latest/jobs.html
 
     Methods:
         run()
     '''
 
-    def __init__(self, notebook_path=None, trigger = Trigger.DEFAULT, timeout=1800,
+    def __init__(self, notebook_path=None, trigger = Trigger.DEFAULT, timeout=7200,
                 args={}, cluster_mode='interactive', job_args={}, **kwargs):
         self.notebook_path = notebook_path
         self.trigger = trigger

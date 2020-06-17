@@ -1,5 +1,9 @@
 def get_spark():
-    '''Gets spark session from within the Databricks'''
+    '''Gets spark session from within the Databricks
+    
+    Returns:
+        sparkSession - spark session
+    '''
     user_ns = get_ipython().user_ns
     if "spark" in user_ns:
         return user_ns["spark"]
@@ -10,7 +14,13 @@ def get_spark():
 
 
 def get_dbutils(spark):
-    '''Gets dbutils from within the Databricks'''
+    '''Gets dbutils from within the Databricks
+    Args:
+        spark: sparkSession
+
+    Returns:
+        dbutils - Databricks dbutils variable
+    '''
     try:
         from pyspark.dbutils import DBUtils
         dbutils = DBUtils(spark.sparkContext)
