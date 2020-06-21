@@ -177,3 +177,10 @@ Do not hesitate to contact me with any question. Pull requests are encouraged!
 Special thank you for everyone who contributed to the project:
 
 [Robertas Sys](https://github.com/rob-sys), [Emilija Lamanauskaite](https://github.com/emilijalamanauskaite)
+
+## Upcoming feature list
+
+- [ ] href link to the current job run for DatabricksAgent notebook submission on job cluster.
+- [ ] "break all pipeline if one element fails" functionality for executor.
+- [ ] status_handler result extraction functionality (not only logging/printing the results).
+- [ ] more agents (GCP Dataproc, Mysql, etc.)
